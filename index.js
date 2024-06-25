@@ -4,6 +4,11 @@ import express from 'express';
 import fs, { read, write } from 'fs';
 
 import bodyParser from 'body-parser';
+import fetch from 'node-fetch';
+
+//create instance of express
+const app = express();
+
 app.use(bodyParser.json());
 
 
@@ -32,8 +37,6 @@ const writeData = (data) => {
 //execute la funcion readData
 readData();
 
-//create instance of express
-const app = express();
 
 
 //with app.get for index view
@@ -42,7 +45,7 @@ app.get("/",(req,res)=>{
 });
 
 //with app.get for read all customers
-app.get("/customer",(req,res)=>{
+app.get("/customers",(req,res)=>{
     const data = readData();
     res.json(data.customer);
 });
@@ -55,7 +58,7 @@ app.get("/customer/:id",(req,res)=>{
     res.json(customer);
 });
 
-app.post("/customer",(req,res)=>{
+app.post("/customer/create",(req,res)=>{
     const data = readData();
     const body = req.body;
     const newCustomer = {
@@ -68,7 +71,7 @@ app.post("/customer",(req,res)=>{
     res.json(customer);
 });
 
-app.put("/customer/:id",(req,res)=>{
+app.put("/customer/:id/update",(req,res)=>{
     const data = readData();
     const body = req.body;
     const id = parseInt (req.params.id);
@@ -83,7 +86,7 @@ app.put("/customer/:id",(req,res)=>{
 });
 
 
-app.delete("/customer/:id",(req,res)=>{
+app.delete("/customer/:id/delete",(req,res)=>{
     const data = readData();
     const id = parseInt (req.params.id);
     const customerIndex = data.customer.findIndex(customer => customer.id === id);
@@ -93,6 +96,108 @@ app.delete("/customer/:id",(req,res)=>{
 
 
 });
+
+// Proveedores
+const url = 'https://staging.apiv2.tpaga.co/api/gateway_bill_payment/v1/utility_providers?per_page=1'; // Añadido el parámetro per_page=10 al final de la URL
+fetch(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': 'Basic YWstdDltbjM0NW44M2llcXdyc3o0eHA4enRnZXR6bnI='
+    }
+})
+.then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+    return response.json(); // o response.text() si esperas texto
+})
+.then(data => {
+    console.log(data);
+})
+.catch(error => {
+    console.error('There has been a problem with your fetch operation:', error);
+});
+
+
+
+// Balance
+const urlAuth = 'https://staging.apiv2.tpaga.co/api/gateway_bill_payment/v1/merchant/balance';
+fetch(urlAuth, {
+    method: 'GET',
+    headers: {
+      'Authorization': 'Basic YWstdDltbjM0NW44M2llcXdyc3o0eHA4enRnZXR6bnI='
+    }
+})
+.then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+    return response.json(); // o response.text() si esperas texto
+})
+.then(data => {
+    console.log(data);
+})
+.catch(error => {
+    console.error('There has been a problem with your fetch operation:', error);
+});
+
+
+// bill to pay
+const urlbilltopay = 'https://staging.apiv2.tpaga.co/api/gateway_bill_payment/v1/utility_providers/etb/bills/111100005555/';
+fetch(urlbilltopay, {
+    method: 'GET',
+    headers: {
+      'Authorization': 'Basic YWstdDltbjM0NW44M2llcXdyc3o0eHA4enRnZXR6bnI='
+    }
+})
+.then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+    return response.json(); // o response.text() si esperas texto
+})
+.then(data => {
+    console.log(data);
+})
+.catch(error => {
+    console.error('There has been a problem with your fetch operation:', error);
+});
+
+
+//bill payments status
+const urlbilltopaystatus = 'https://staging.apiv2.tpaga.co/api/gateway_bill_payment/v1/bill_payment_transactions/some-random-and-unique-token-944';
+fetch(urlbilltopaystatus, {
+    method: 'GET',
+    headers: {
+      'Authorization': 'Basic YWstdDltbjM0NW44M2llcXdyc3o0eHA4enRnZXR6bnI='
+    }
+})
+.then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+    return response.json(); // o response.text() si esperas texto
+})
+.then(data => {
+    console.log(data);
+})
+.catch(error => {
+    console.error('There has been a problem with your fetch operation:', error);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //Definir una ruta
 app.listen(3000,()=>{
